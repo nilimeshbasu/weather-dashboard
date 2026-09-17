@@ -7,7 +7,6 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Your actual API Key is here
   const API_KEY = 'fba42f7c8ef9682067ea7352861ed280'; 
 
   const fetchWeather = async (e) => {
@@ -20,12 +19,9 @@ function App() {
 
     try {
       const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`);
-      
-      // Parse the response data first to catch the exact API error
       const data = await response.json();
       
       if (!response.ok) {
-        // Capitalize and throw the exact error message from OpenWeatherMap
         const errorMessage = data.message ? data.message.charAt(0).toUpperCase() + data.message.slice(1) : 'City not found';
         throw new Error(`API Error: ${errorMessage}`);
       }
@@ -42,62 +38,104 @@ function App() {
     return new Date(unixTime * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
+  // --- DYNAMIC DAY/NIGHT & WEATHER LOGIC ---
+  let bgClass = 'bg-default'; 
+  let isRaining = false;
+
+  if (weatherData) {
+    const condition = weatherData.weather[0].main.toLowerCase();
+    const currentTime = weatherData.dt;
+    const sunrise = weatherData.sys.sunrise;
+    const sunset = weatherData.sys.sunset;
+    
+    // Check if current time is between sunrise and sunset
+    const isDay = currentTime >= sunrise && currentTime < sunset;
+
+    if (condition.includes('rain') || condition.includes('drizzle') || condition.includes('thunderstorm')) {
+      isRaining = true;
+      bgClass = 'bg-rainy';
+    } else if (!isDay) {
+      bgClass = 'bg-night'; // Chennai Night theme
+    } else if (isDay && condition.includes('clear')) {
+      bgClass = 'bg-day-sunny'; // Beijing Sunny theme
+    } else if (isDay && condition.includes('cloud')) {
+      bgClass = 'bg-day-cloudy'; // New York Cloudy theme
+    } else {
+      bgClass = 'bg-day-cloudy'; // Fallback
+    }
+  }
+
   return (
-    <div className="app-container">
-      <div className="weather-card">
-        <h1 className="title">Weather Dashboard</h1>
-        
-        <form onSubmit={fetchWeather} className="search-form">
-          <input 
-            type="text" 
-            placeholder="Enter city name..." 
-            value={city} 
-            onChange={(e) => setCity(e.target.value)} 
-            className="search-input"
-          />
-          <button type="submit" className="search-btn">Search</button>
-        </form>
+    <div className={`app-wrapper ${bgClass}`}>
+      {/* Live Rain Effect Overlay */}
+      {isRaining && (
+        <div className="rain-container">
+          <div className="rain-layer layer-1"></div>
+          <div className="rain-layer layer-2"></div>
+        </div>
+      )}
 
-        {loading && (
-          <div className="spinner-container">
-            <div className="spinner"></div>
-            <p>Fetching weather...</p>
-          </div>
-        )}
+      {/* Stars Overlay for Night Time */}
+      {bgClass === 'bg-night' && !isRaining && (
+        <div className="stars-container"></div>
+      )}
 
-        {error && <div className="error-message">⚠️ {error}</div>}
-
-        {weatherData && !loading && !error && (
-          <div className="weather-info slide-up">
-            <h2>{weatherData.name}, {weatherData.sys.country}</h2>
-            <img 
-              src={`http://openweathermap.org/img/wn/${weatherData.weather[0].icon}@4x.png`} 
-              alt="Weather Icon" 
-              className="weather-icon"
+      <div className="app-container">
+        <div className="weather-card">
+          <h1 className="title">Weather Dashboard</h1>
+          
+          <form onSubmit={fetchWeather} className="search-form">
+            <input 
+              type="text" 
+              placeholder="Enter city name..." 
+              value={city} 
+              onChange={(e) => setCity(e.target.value)} 
+              className="search-input"
             />
-            <div className="temp">{Math.round(weatherData.main.temp)}°C</div>
-            <p className="description">{weatherData.weather[0].description.toUpperCase()}</p>
-            
-            <div className="details-grid">
-              <div className="detail-box">
-                <span className="label">Humidity</span>
-                <span className="value">{weatherData.main.humidity}%</span>
-              </div>
-              <div className="detail-box">
-                <span className="label">Wind Speed</span>
-                <span className="value">{weatherData.wind.speed} m/s</span>
-              </div>
-              <div className="detail-box">
-                <span className="label">Sunrise</span>
-                <span className="value">{formatTime(weatherData.sys.sunrise)}</span>
-              </div>
-              <div className="detail-box">
-                <span className="label">Sunset</span>
-                <span className="value">{formatTime(weatherData.sys.sunset)}</span>
+            <button type="submit" className="search-btn">Search</button>
+          </form>
+
+          {loading && (
+            <div className="spinner-container">
+              <div className="spinner"></div>
+              <p>Fetching weather...</p>
+            </div>
+          )}
+
+          {error && <div className="error-message">⚠️ {error}</div>}
+
+          {weatherData && !loading && !error && (
+            <div className="weather-info slide-up">
+              <h2>{weatherData.name}, {weatherData.sys.country}</h2>
+              <img 
+                src={`http://openweathermap.org/img/wn/${weatherData.weather[0].icon}@4x.png`} 
+                alt="Weather Icon" 
+                className="weather-icon"
+              />
+              <div className="temp">{Math.round(weatherData.main.temp)}°C</div>
+              <p className="description">{weatherData.weather[0].description.toUpperCase()}</p>
+              
+              <div className="details-grid">
+                <div className="detail-box">
+                  <span className="label">Humidity</span>
+                  <span className="value">{weatherData.main.humidity}%</span>
+                </div>
+                <div className="detail-box">
+                  <span className="label">Wind Speed</span>
+                  <span className="value">{weatherData.wind.speed} m/s</span>
+                </div>
+                <div className="detail-box">
+                  <span className="label">Sunrise</span>
+                  <span className="value">{formatTime(weatherData.sys.sunrise)}</span>
+                </div>
+                <div className="detail-box">
+                  <span className="label">Sunset</span>
+                  <span className="value">{formatTime(weatherData.sys.sunset)}</span>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

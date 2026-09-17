@@ -1,5 +1,90 @@
-body { margin: 0; font-family: 'Segoe UI', Tahoma, sans-serif; background: linear-gradient(135deg, #74ebd5 0%, #9face6 100%); color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-.app-container { width: 100%; max-width: 500px; padding: 20px; }
+/* Base Styling */
+body { margin: 0; font-family: 'Segoe UI', Tahoma, sans-serif; color: white; overflow-x: hidden; }
+
+/* Dynamic Wrappers */
+.app-wrapper {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background 1.5s ease-in-out;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 1. Default Background */
+.bg-default {
+  background: linear-gradient(135deg, #74ebd5 0%, #9face6 100%);
+}
+
+/* 2. Rainy Background */
+.bg-rainy {
+  background: linear-gradient(to bottom, #232d3a 0%, #465b73 100%);
+}
+
+/* 3. Night Theme (Chennai vibe) */
+.bg-night {
+  background: linear-gradient(to bottom, #081021 0%, #172846 50%, #2a4163 100%);
+}
+
+/* 4. Day Sunny Theme (Beijing vibe) */
+.bg-day-sunny {
+  background: linear-gradient(to bottom, #9ab7cf 0%, #e2ab69 45%, #db6527 100%);
+}
+
+/* 5. Day Cloudy Theme (New York vibe) */
+.bg-day-cloudy {
+  background: linear-gradient(to bottom, #6d93c7 0%, #d8b2b5 45%, #92accf 100%);
+}
+
+/* Simple CSS Stars for Night */
+.stars-container {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background-image: 
+    radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 50px 160px, #ddd, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 90px 40px, #fff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 130px 80px, #fff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 160px 120px, #ddd, rgba(0,0,0,0));
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  opacity: 0.6;
+  z-index: 1;
+}
+
+/* Rain Animation Effect */
+.rain-container {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 1;
+}
+
+.rain-layer {
+  width: 2px; height: 60px; background: transparent;
+  box-shadow: 
+    10vw -10vh 2px 1px rgba(255,255,255,0.4),
+    30vw -30vh 2px 1px rgba(255,255,255,0.5),
+    50vw -5vh 2px 1px rgba(255,255,255,0.3),
+    70vw -60vh 2px 1px rgba(255,255,255,0.6),
+    90vw -20vh 2px 1px rgba(255,255,255,0.4),
+    20vw -80vh 2px 1px rgba(255,255,255,0.5),
+    40vw -40vh 2px 1px rgba(255,255,255,0.6),
+    60vw -90vh 2px 1px rgba(255,255,255,0.4),
+    80vw -15vh 2px 1px rgba(255,255,255,0.5);
+}
+
+.layer-1 { animation: fall 0.7s linear infinite; }
+.layer-2 { animation: fall 1s linear infinite; transform: scale(1.5) translateX(-20vw); opacity: 0.6; }
+
+@keyframes fall {
+  0% { transform: translateY(-100vh); }
+  100% { transform: translateY(100vh); }
+}
+
+/* Core App Styling */
+.app-container { width: 100%; max-width: 500px; padding: 20px; z-index: 2; position: relative; }
 .weather-card { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); border-radius: 20px; padding: 30px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.2); text-align: center; }
 .title { margin-top: 0; font-size: 2rem; text-shadow: 1px 1px 2px rgba(0,0,0,0.2); }
 
@@ -8,14 +93,12 @@ body { margin: 0; font-family: 'Segoe UI', Tahoma, sans-serif; background: linea
 .search-btn { padding: 12px 25px; border: none; border-radius: 30px; background: #ff6b6b; color: white; font-weight: bold; cursor: pointer; transition: 0.3s; }
 .search-btn:hover { background: #ff5252; transform: scale(1.05); }
 
-/* Loading Spinner Animation */
+/* Additional Styling */
 .spinner-container { margin: 30px 0; display: flex; flex-direction: column; align-items: center; }
 .spinner { width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.3); border-top: 4px solid white; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 10px; }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
 .error-message { background: rgba(255, 75, 75, 0.8); padding: 15px; border-radius: 10px; margin: 20px 0; font-weight: bold; animation: popIn 0.3s ease-out; }
-
-/* Weather Info Slide Animation */
 .slide-up { animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
